@@ -9,7 +9,7 @@ TOKEN = '1'
 cID = 1
 
 # store ID of last sent reminder message (for deletion)
-last_message_id = None
+lastMsgID = None
 
 intents = discord.Intents.default()
 intents.messages = True
@@ -17,34 +17,31 @@ intents.messages = True
 # init bot
 bot = commands.Bot(command_prefix='!', intents=intents)
 
-# on ready
+# send reminder
 async def water_reminder():
-    global last_message_id
+    global lastMsgID
     await bot.wait_until_ready()
     channel = bot.get_channel(cID)
 
     while not bot.is_closed():
-        if last_message_id:
+        if lastMsgID:
             # delete previous reminder
             try:
-                last_message = await channel.fetch_message(last_message_id)
+                last_message = await channel.fetch_message(lastMsgID)
                 await last_message.delete()
             except discord.NotFound:
                 pass  # no msg, do nothing
 
         # send new reminder msg
-        new_message = await channel.send("It's time to drink water!")
-        last_message_id = new_message.id
+        new_message = await channel.send("~ ding ding tea time ~")
+        lastMsgID = new_message.id
 
-        await asyncio.sleep(3600)  # 1 hour
+        await asyncio.sleep(36)  # 1 hour
 
-# asynchronous main function
-async def main():
-    # start reminder loop
-    bot.loop.create_task(water_reminder())
+@bot.event
+async def on_ready():
+    print(f'{bot.user} is ready to go at a leisurely pace')
+    bot.loop.create_task(water_reminder())  # start reminder loop on ready
 
-    # run bot
-    await bot.start(TOKEN)
-
-# run main func
-asyncio.run(main())
+# run bot
+bot.run(TOKEN)
